@@ -11,7 +11,7 @@ const {
   client: discord
 } = require("./discord.js");
 
-const { token, channelId, name, currentCampaign } = require("./config.json");
+const { token, channelId, campaignChannelId, name, currentCampaign } = require("./config.json");
 
 const { EmbedBuilder } = require("discord.js");
 const {promises: fs} = require("fs");
@@ -173,7 +173,7 @@ app.post("/api/pb/:id", async (req, res) => {
     } while (rank === undefined && rankAttempts < 20);
   }
 
-  const channel = discord.channels.cache.get(channelId);
+  const channel = discord.channels.cache.get(campaignChannelId);
   const embed = new EmbedBuilder()
       .setTitle(req.body.mapName)
       .setURL(req.body.mapLink)
