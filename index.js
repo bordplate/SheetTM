@@ -106,9 +106,7 @@ app.get("/", async (req, res) => {
 app.post("/api/pb/:id", async (req, res) => {
   let userId = req.params.id;
 
-  let requestData = req.body;
-
-  if (req.body.mapAuthor != "Nadeo") {
+  if (!req.body.mapAuthor || req.body.mapAuthor != "Nadeo") {
     res.send("ok");
     return;
   }
@@ -123,6 +121,11 @@ app.post("/api/pb/:id", async (req, res) => {
   const fileData = await fs.readFile("data/userData.json", "utf-8");
   const userNames = JSON.parse(fileData);
   let user = userNames.find((user) => user.id === userId);
+
+  if (!user || !user.name) {
+    res.send("ok");
+    return;
+  }
 
   res.send(user.name);
 
