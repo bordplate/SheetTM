@@ -26,6 +26,14 @@ const medalReplacements = {
   ":no_medal:": "",
 }
 
+const nameToMapReplacements = {
+  "China 2026": "Winter 2026 - 21",
+  "France 2026": "Winter 2026 - 22",
+  "USA 2026": "USA 2026 - 23",
+  "Brazil 2026": "Winter 2026 - 24",
+  "Greece 2026": "Winter 2026 - 25",
+}
+
 const app = express();
 
 app.use(express.json());
@@ -111,12 +119,20 @@ app.post("/api/pb/:id", async (req, res) => {
     return;
   }
 
-  if (!req.body.mapName || !req.body.mapName.startsWith(currentCampaign)) {
+  if (!req.body.mapName) {
     res.send("ok");
     return;
   }
 
-  let track = req.body.mapName.split(" - ")[1];
+  let convertedMapName = req.body.mapName;
+  convertedMapName = nameToMapReplacements[convertedMapName] || convertedMapName;
+
+  if (!convertedMapName.startsWith(currentCampaign)) {
+    res.send("ok");
+    return;
+  }
+
+  let track = convertedMapName.split(" - ")[1];
 
   const fileData = await fs.readFile("data/userData.json", "utf-8");
   const userNames = JSON.parse(fileData);
