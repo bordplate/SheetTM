@@ -1,6 +1,41 @@
 const { SlashCommandBuilder } = require("discord.js");
-const { getName } = require("../../utility-functions");
+const { getName, sleep } = require("../../utility-functions");
 const fetch = require("node-fetch");
+
+async function updateCampaignTime(user, track, time) {
+  const data = {
+    player: user.name,
+    track: track,
+    time: time,
+  };
+
+  const response = await fetch("http://localhost:8080/campaign", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  return await response.json();
+}
+
+async function getRanking(track, time) {
+  const data = {
+    track: track,
+    time: time,
+  };
+
+  const response = await fetch("http://localhost:8080/campaign/ranking", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  return await response.json();
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -56,43 +91,46 @@ module.exports = {
       }
 
       try {
-        const data = {
-          player: user.name,
-          track: track,
-          time: time,
-        };
-
-        const response = await fetch("http://localhost:8080/campaign", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
+        const result = await updateCampaignTime(user, track, time);
 
         if (result.matchFound) {
           success = true;
-          rank = result.rank;
           timeSave = result.timeSave;
         } else {
           success = false;
         }
 
-        if (!response.ok) {
-          // Log the error status and response text
-          console.error(`Error: ${response.status} - ${await response.text()}`);
-          return;
-        }
+        // if (!response.ok) {
+        //   // Log the error status and response text
+        //   console.error(`Error: ${response.status} - ${await response.text()}`);
+        //   return;
+        // }
       } catch (error) {
         console.error("Error:", error);
       }
 
       if (success) {
-        await interaction.editReply(
-          `Updated ${user.name}'s time on track ${track} to ${time} (-${timeSave}) - placing #${rank}`
-        );
+        let rankAttempts = 0;
+
+        do {
+          rankAttempts++;
+          rank = (await getRanking(track, time)).rank;
+
+          let rankString = `placing #${rank}`;
+          if (rank === undefined) {
+            rankString = `rank calculation retry ${rankAttempts}...`;
+          }
+
+          if (rankAttempts > 20) {
+            rankString = `rank calculation failed after 20 attempts.`;
+          }
+
+          await interaction.editReply(
+              `Updated ${user.name}'s time on track ${track} to ${time} (-${timeSave}) – ${rankString}`
+          );
+
+          await sleep(1000);
+        } while (rank === undefined && rankAttempts < 20);
       } else {
         await interaction.editReply(`Name not found on the sheet.`);
       }

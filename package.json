@@ -6,7 +6,7 @@
     "googleapis": "^131.0.0",
     "node-fetch": "^2.7.0"
   },
-  "main": "main.js",
+  "main": "index.js",
   "devDependencies": {
     "nodemon": "^3.0.3"
   }

@@ -11,5 +11,5 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Start a script that runs both index.js and main.js
-CMD ["sh", "-c", "node index.js & node main.js"]
+# Start a script that runs both index.js and discord.js
+CMD ["sh", "-c", "node index.js & node discord.js"]

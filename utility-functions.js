@@ -73,7 +73,10 @@ const getColumnLetter = (index) => {
   return letter;
 };
 
+let cachedSheets = null;
 const getSheetAuth = async () => {
+  if (cachedSheets) return cachedSheets;
+
   const auth = new google.auth.GoogleAuth({
     keyFile: "credentials.json",
     scopes: "https://www.googleapis.com/auth/spreadsheets",
@@ -81,8 +84,15 @@ const getSheetAuth = async () => {
 
   const client = await auth.getClient();
   const googleSheets = google.sheets({ version: "v4", auth: client });
+
+  cachedSheets = [auth, googleSheets];
+
   return [auth, googleSheets];
 };
+
+async function sleep(duration) {
+  return new Promise((resolve) => setTimeout(resolve, duration));
+}
 
 module.exports = {
   calculateTimeDifference,
@@ -90,4 +100,5 @@ module.exports = {
   getName,
   getSheetAuth,
   setName,
+  sleep,
 };

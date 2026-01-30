@@ -173,11 +173,8 @@ const updateCampaign = async (player, track, time) => {
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const rank = await getRankings(googleSheets, time, track, auth);
-
     return {
       matchFound: true,
-      rank,
       timeSave: calculateTimeDifference(
         values[matchRow - 1][matchColumn],
         time
@@ -188,7 +185,9 @@ const updateCampaign = async (player, track, time) => {
   }
 };
 
-const getRankings = async (googleSheets, time, track, auth) => {
+const getRankings = async (time, track) => {
+  const [auth, googleSheets] = await getSheetAuth();
+
   const rankingRange = "Campaign!C84:M109";
 
   const getRankings = await googleSheets.spreadsheets.values.get({
@@ -236,4 +235,5 @@ module.exports = {
   updateCotdInfo,
   updateCampaign,
   getLeaderboard,
+  getRankings,
 };

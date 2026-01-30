@@ -85,5 +85,5 @@ process.on("SIGTERM", async () => {
       process.exit(1);
     });
 });
-// Log in to Discord with your client's token
-client.login(token);
+
+module.exports = { client };
