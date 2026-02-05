@@ -37,8 +37,6 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   const channel = client.channels.cache.get(channelId);
-
-  channel.send(`${name} has turned me on :)`);
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {

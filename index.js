@@ -11,7 +11,7 @@ const {
   client: discord
 } = require("./discord.js");
 
-const { token, channelId, campaignChannelId, name, currentCampaign } = require("./config.json");
+const { token, channelId, cotdChannelId, campaignChannelId, name, currentCampaign } = require("./config.json");
 
 const { EmbedBuilder } = require("discord.js");
 const {promises: fs} = require("fs");
@@ -175,7 +175,7 @@ app.post("/api/cotd/:id", async (req, res) => {
     color = 0x8C1CF5;
   }
 
-  const channel = discord.channels.cache.get(campaignChannelId);
+  const channel = discord.channels.cache.get(cotdChannelId);
   const embed = new EmbedBuilder()
       .setTitle(`:trophy: ${user.name} just ranked #${matchRank}!`)
       // .setURL(req.body.MapLink)
