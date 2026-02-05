@@ -6,12 +6,9 @@ const fetch = require("node-fetch");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("webhook")
-        .setDescription("Gets your personalized webhook URL"),
+        .setDescription("Gets your personalized webhook URLs"),
 
     async execute(interaction) {
-        let lbString = "";
-        await interaction.deferReply();
-
-        await interaction.editReply(`\`${url}/api/pb/${interaction.user.id}\``);
+        await interaction.reply({"content": `PB: \`${url}/api/pb/${interaction.user.id}\`\nCoTD: \`${url}/api/cotd/${interaction.user.id}\``, ephemeral: true});
     },
 };

@@ -111,6 +111,94 @@ app.get("/", async (req, res) => {
   res.send("ok");
 });
 
+app.post("/api/cotd/:id", async (req, res) => {
+  let userId = req.params.id;
+
+  if (!req.body.ServerName || !req.body.GameMode) {
+    res.send("ok");
+    return;
+  }
+
+  const serverName = req.body.ServerName;
+  const gameMode = req.body.GameMode;
+
+  if (gameMode !== "TM_KnockoutDaily_Online" || !serverName.includes("#1")) {
+    res.send("ok");
+    return;
+  }
+
+  if (!userId) {
+    res.status(400).json({ error: "User ID is required" });
+    return;
+  }
+
+  const fileData = await fs.readFile("data/userData.json", "utf-8");
+  const userNames = JSON.parse(fileData);
+  let user = userNames.find((user) => user.id === userId);
+
+  if (!user || !user.name) {
+    res.send("ok");
+    return;
+  }
+
+  if (!req.body.Net_TMGame_Tracking_MatchRank || !req.body.Net_Knockout_KnockoutReward_CupRank) {
+    res.send("ok");
+    return;
+  }
+
+  const matchRank = req.body.Net_TMGame_Tracking_MatchRank;
+  const cupRank = req.body.Net_Knockout_KnockoutReward_CupRank;
+
+  const div = Math.ceil(cupRank / 64);
+
+  const today = new Date();
+  const day = today.getDate().toString().padStart(2, "0");
+  const month = (today.getMonth() + 1).toString().padStart(2, "0");
+  const year = today.getFullYear().toString();
+  const date = `${month}/${day}/${year}`;
+
+  let color = 0xcccccc;
+
+  if (matchRank <= 32) {
+    color = 0xCD7F32;
+  }
+  if (matchRank <= 16) {
+    color = 0xC0C0C0;
+  }
+  if (matchRank <= 8) {
+    color = 0xD4AF37;
+  }
+  if (matchRank <= 4) {
+    color = 0x008000;
+  }
+  if (matchRank <= 1) {
+    color = 0x8C1CF5;
+  }
+
+  const channel = discord.channels.cache.get(campaignChannelId);
+  const embed = new EmbedBuilder()
+      .setTitle(`:trophy: ${user.name} just ranked #${matchRank}!`)
+      // .setURL(req.body.MapLink)
+      .setColor(color)
+      .addFields(
+          { name: "Rank", value: `#${matchRank}`, inline: true },
+          { name: "Overall rank", value: `#${cupRank}`, inline: true },
+          { name: "Division", value: `${div}`, inline: true },
+      )
+      .setFooter({ text: date })
+      .setTimestamp();
+
+  await channel.send({ embeds: [embed] });
+
+  try {
+    const result = await updateCotdSheet(user.name, date, div, matchRank);
+    res.json(result);
+  } catch (error) {
+    console.error("Error updating sheet: ", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 app.post("/api/pb/:id", async (req, res) => {
   let userId = req.params.id;
 
