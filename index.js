@@ -176,25 +176,37 @@ app.post("/api/cotd/:id", async (req, res) => {
   }
 
   const channel = discord.channels.cache.get(cotdChannelId);
-  const embed = new EmbedBuilder()
-      .setTitle(`:trophy: ${user.name} just ranked #${matchRank}!`)
-      // .setURL(req.body.MapLink)
-      .setColor(color)
-      .addFields(
-          { name: "Rank", value: `#${matchRank}`, inline: true },
-          { name: "Overall rank", value: `#${cupRank}`, inline: true },
-          { name: "Division", value: `${div}`, inline: true },
-      )
-      .setFooter({ text: date })
-      .setTimestamp();
-
-  await channel.send({ embeds: [embed] });
 
   try {
     const result = await updateCotdSheet(user.name, date, div, matchRank);
     res.json(result);
+
+    let fields = [
+      { name: "Rank", value: `#${matchRank}`, inline: true },
+      { name: "Overall rank", value: `#${cupRank}`, inline: true },
+      { name: "Division", value: `${div}`, inline: true },
+    ];
+
+    if (result.newEntry) {
+      fields.push({ name: "New COTDigami entry!", value: "🎉", inline: true });
+    }
+
+    const embed = new EmbedBuilder()
+        .setTitle(`:trophy: ${user.name} just ranked #${matchRank}!`)
+        // .setURL(req.body.MapLink)
+        .setColor(color)
+        .addFields(
+            ...fields
+        )
+        .setFooter({ text: date })
+        .setTimestamp();
+
+    await channel.send({ embeds: [embed] });
   } catch (error) {
     console.error("Error updating sheet: ", error);
+
+    await channel.send(`Error updating sheet: ${error} for ${user.name}`);
+
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
