@@ -27,11 +27,11 @@ const medalReplacements = {
 }
 
 const nameToMapReplacements = {
-  "China 2026": "Winter 2026 - 21",
-  "France 2026": "Winter 2026 - 22",
-  "USA 2026": "USA 2026 - 23",
-  "Brazil 2026": "Winter 2026 - 24",
-  "Greece 2026": "Winter 2026 - 25",
+  "Germany 2026": "Spring 2026 - 21",
+  "South Korea 2026": "Spring 2026 - 22",
+  "Canada 2026": "Spring 2026 - 23",
+  "Australia 2026": "Spring 2026 - 24",
+  "Hungary 2026": "Spring 2026 - 25",
 }
 
 const app = express();
